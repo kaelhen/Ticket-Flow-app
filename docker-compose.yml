@@ -13,5 +13,27 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
+  auth-service:
+    build: ./auth-service
+    container_name: ticketflow_java
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=postgres-db
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=secret
+    depends_on:
+      - postgres-db
+
+  recommendation-service:
+    build: ./recommendation-service
+    container_name: ticketflow_python
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./recommendation-service:/app
+    depends_on:
+      - postgres-db
+
 volumes:
   db_data:

@@ -56,3 +56,4 @@ bin/
 # Spring Boot
 HELP.md
 venv/
+__pycache__/
