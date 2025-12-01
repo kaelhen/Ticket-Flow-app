@@ -34,6 +34,11 @@ services:
       - ./recommendation-service:/app
     depends_on:
       - postgres-db
+    environment:
+      - DB_HOST=postgres-db
+      - DB_NAME=ticketflow_db
+      - DB_USER=root
+      - DB_PASSWORD=secret
 
 volumes:
   db_data:
