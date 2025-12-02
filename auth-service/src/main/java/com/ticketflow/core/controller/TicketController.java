@@ -3,6 +3,7 @@ package com.ticketflow.core.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +19,7 @@ import com.ticketflow.core.repository.UserRepository;
 
 @RestController
 @RequestMapping("/api/tickets")
+@CrossOrigin(origins = "*")
 public class TicketController {
     @Autowired
     private TicketRepository ticketRepository;
