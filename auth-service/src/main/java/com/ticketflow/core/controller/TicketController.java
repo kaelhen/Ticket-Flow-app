@@ -18,7 +18,7 @@ import com.ticketflow.core.repository.TicketRepository;
 import com.ticketflow.core.repository.UserRepository;
 
 @RestController
-@RequestMapping("/api/tickets")
+@RequestMapping("/tickets")
 @CrossOrigin(origins = "*")
 public class TicketController {
     @Autowired

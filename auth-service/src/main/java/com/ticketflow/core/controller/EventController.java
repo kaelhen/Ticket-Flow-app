@@ -8,7 +8,7 @@ import com.ticketflow.core.model.Event;
 import com.ticketflow.core.repository.EventRepository;
 
 @RestController
-@RequestMapping("/api/events")
+@RequestMapping("/events")
 @CrossOrigin(origins = "*")
 public class EventController {
     @Autowired

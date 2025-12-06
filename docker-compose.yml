@@ -54,6 +54,16 @@ services:
     volumes:
       - ./frontend-app:/app
       - /app/node_modules
+  gateway:
+    build: ./gateway
+    container_name: ticketflow_gateway
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+      - frontend-app
+      - recommendation-service
+      - queue-service
 
 volumes:
   db_data:
