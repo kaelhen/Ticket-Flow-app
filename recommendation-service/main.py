@@ -1,14 +1,24 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, text
 import os
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_NAME = os.getenv("DB_NAME", "ticketflow_db")
 DB_USER = os.getenv("DB_USER", "root")
-BD_PASSWORD = os.getenv("DB_PASSWORD", "secret")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "secret")
 
-DATABASE_URL = f"postgresql://{DB_USER}:{BD_PASSWORD}@{DB_HOST}:5432/{DB_NAME}"
+DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:5432/{DB_NAME}"
 
 engine = create_engine(DATABASE_URL)
 
@@ -16,11 +26,11 @@ engine = create_engine(DATABASE_URL)
 def read_root():
     return {"message": "Servicio de Recomendaciones de TicketFlow"}
 
-@app.get("/recommend/{user_id}")
+@app.get("/{user_id}")
 def recommend_events(user_id: int):
     try:
         with engine.connect() as connection:
-            result = connection.execute(text("Select id, name, descripcion, price FROM events LIMIT 3"))
+            result = connection.execute(text("SELECT id, name, descripcion, price FROM events LIMIT 3"))
             recommendations = []
             for row in result:
                 recommendations.append({
@@ -28,7 +38,7 @@ def recommend_events(user_id: int):
                     "name": row.name,
                     "description": row.descripcion,
                     "price": row.price,
-                    "reason":"Basado en tus gustos recientes"
+                    "reason": "Basado en tus gustos recientes"
                 })
 
             return {
@@ -36,4 +46,5 @@ def recommend_events(user_id: int):
                 "recommendations": recommendations
             }
     except Exception as e:
-        return{"error": str(e)}
+        print(f"Error DB: {e}")
+        return {"error": str(e)}
