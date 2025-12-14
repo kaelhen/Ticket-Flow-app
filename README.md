@@ -1,91 +1,74 @@
-# 🎟️ TicketFlow - Microservices Event Platform
+# 🎟️ TicketFlow - Plataforma de Eventos con Microservicios
 
-**TicketFlow** is a modern, polyglot microservices application designed to demonstrate a robust architecture for high-demand event ticketing systems. It integrates multiple programming languages and technologies to solve specific domain problems efficiently.
-
----
-
-## 🚀 Architecture Overview
-
-The system is composed of independent services containerized with Docker and orchestrated via Docker Compose.
-
-| Service | Technology | Port | Description |
-| :--- | :--- | :--- | :--- |
-| **Frontend App** | **React (Vite) + Node.js** | `5173` | User interface for browsing events, buying tickets, and managing user sessions. |
-| **Auth Service** | **Java (Spring Boot)** | `8080` | Core backend handling Users, Events, and Ticket transactions. |
-| **Recommendation Service** | **Python (FastAPI)** | `8001` | AI-powered service providing personalized event recommendations. |
-| **Queue Service** | **Go (Gin)** | `8082` | High-concurrency virtual queue system for managing traffic spikes. |
-| **API Gateway** | **Nginx** | `80` | Reverse proxy routing requests to appropriate backend services. |
-| **Database** | **PostgreSQL** | `5432` | Centralized relational database for persistent storage. |
+**TicketFlow** es una aplicación moderna basada en microservicios diseñada para demostrar una arquitectura robusta capaz de manejar sistemas de venta de entradas de alta demanda. Este proyecto integra múltiples lenguajes de programación y tecnologías, aprovechando las fortalezas de cada uno para resolver problemas específicos del dominio de manera eficiente.
 
 ---
 
-## ✨ Key Features
+## ✨ Características Clave
 
--   **Microservices Architecture**: Decoupled services communicating via REST APIs.
--   **Polyglot Stack**: Leverages the best tool for each job (Java for enterprise logic, Python for AI/Data, Go for concurrency, JS for UI).
--   **Virtual Queue System**: Simulates a high-traffic waiting room using Go's efficiency.
--   **AI Recommendations**: Python-based engine suggesting events based on user context.
--   **Secure Authentication**: User login and session management.
--   **Containerization**: Fully Dockerized environment for consistent deployment.
+-   **Arquitectura de Microservicios**: Servicios desacoplados que se comunican a través de APIs REST.
+-   **Stack Políglota**: Utiliza la mejor herramienta para cada tarea (Java para lógica empresarial, Python para IA/Datos, Go para concurrencia, JS para UI).
+-   **Sistema de Cola Virtual**: Simula una sala de espera de alto tráfico utilizando la eficiencia de Go.
+-   **Recomendaciones con IA**: Motor basado en Python que sugiere eventos según el contexto del usuario.
+-   **Autenticación Segura**: Gestión de inicio de sesión y sesiones de usuario.
+-   **Containerización**: Entorno totalmente Dockerizado para un despliegue consistente.
 
 ---
 
-## 🛠️ Prerequisites
+## 🛠️ Requisitos Previos
 
--   [Docker](https://www.docker.com/) & Docker Compose installed on your machine.
+-   [Docker](https://www.docker.com/) y Docker Compose instalados en tu máquina.
 -   Git.
 
 ---
 
-## 🏁 Getting Started
+## 🏁 Comenzando
 
-1.  **Clone the repository:**
+1.  **Clonar el repositorio:**
     ```bash
     git clone https://github.com/kaelhen/Ticket-Flow-app.git
     cd Ticket-Flow-app
     ```
 
-2.  **Start the application:**
-    Run the following command to build and start all services:
+2.  **Iniciar la aplicación:**
+    Ejecuta el siguiente comando para construir e iniciar todos los servicios:
     ```bash
     docker compose up -d --build
     ```
 
-3.  **Access the Application:**
-    Open your browser and navigate to:
+3.  **Acceder a la Aplicación:**
+    Abre tu navegador y navega a:
     > **http://localhost**
 
-    *The Nginx Gateway handles routing, so you don't need to access individual service ports.*
+    *El API Gateway (Nginx) maneja el enrutamiento, por lo que no necesitas acceder a los puertos de los servicios individuales.*
 
 ---
 
-## 🧪 Testing the Flow
+## 🧪 Probando el Flujo
 
-1.  **Login**: Use the default credentials (or register a new user via API).
-    *   *Email*: `admin@ticketflow.com`
-    *   *Password*: `admin123` (Ensure you create this user in DB or use the registration flow).
-2.  **Dashboard**: View available events fetched from the Java backend.
-3.  **Recommendations**: Check the "AI Service" widget to see Python-generated suggestions.
-4.  **Queue**: Click "Join Queue" to interact with the Go microservice.
-5.  **Buy Ticket**: Select an event and purchase a ticket (processed by Java).
+1.  **Iniciar Sesión**: Ingresa con tu usuario registrado.
+2.  **Dashboard**: Visualiza los eventos disponibles obtenidos desde el backend en Java.
+3.  **Recomendaciones**: Revisa el widget de "Servicio de IA" para ver sugerencias generadas por Python.
+4.  **Cola**: Haz clic en "Unirse a la Fila" para interactuar con el microservicio en Go.
+5.  **Comprar Ticket**: Selecciona un evento y compra una entrada (procesado por Java).
 
 ---
 
-## 📂 Project Structure
+## 📂 Estructura del Proyecto
 
 ```
 Ticket-Flow-app/
-├── auth-service/           # Java Spring Boot Application
-├── frontend-app/           # React Vite Application
-├── queue-service/          # Go Gin Application
-├── recommendation-service/ # Python FastAPI Application
-├── gateway/                # Nginx Configuration
-├── docker-compose.yml      # Orchestration file
+├── auth-service/           # Aplicación Java Spring Boot
+├── frontend-app/           # Aplicación React Vite
+├── queue-service/          # Aplicación Go Gin
+├── recommendation-service/ # Aplicación Python FastAPI
+├── gateway/                # Configuración de Nginx
+├── docker-compose.yml      # Archivo de orquestación
 └── .gitignore
 ```
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Autor
 
-Developed by **[Kaelhen]** as a portfolio project demonstrating advanced Full Stack and DevOps capabilities.
+Desarrollado por **[Kaelhen]** como un proyecto de portafolio para demostrar capacidades avanzadas en Full Stack y DevOps.
