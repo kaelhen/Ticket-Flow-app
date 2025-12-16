@@ -24,4 +24,22 @@ public class EventController {
         return eventRepository.save(event);
     }
 
+    @org.springframework.web.bind.annotation.PutMapping("/{id}")
+    public Event updateEvent(@org.springframework.web.bind.annotation.PathVariable Long id,
+            @org.springframework.web.bind.annotation.RequestBody Event eventDetails) {
+        Event event = eventRepository.findById(id).orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+
+        event.setName(eventDetails.getName());
+        event.setDescripcion(eventDetails.getDescripcion());
+        event.setLocation(eventDetails.getLocation());
+        event.setPrice(eventDetails.getPrice());
+        event.setDate(eventDetails.getDate());
+        return eventRepository.save(event);
+    }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/{id}")
+    public void deleteEvent(@org.springframework.web.bind.annotation.PathVariable Long id) {
+        eventRepository.deleteById(id);
+    }
+
 }

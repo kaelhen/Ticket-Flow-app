@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { Await, useNavigate } from "react-router-dom"
 import '../App.css'
 
 function DashboardPage() {
@@ -9,10 +9,10 @@ function DashboardPage() {
     const [recommendations, setRecommendations] = useState([])
     const [queueMsg, setQueueMsg] = useState("")
     const [loading, setLoading] = useState(true)
-    const [newEvent, setNewEvent] = useState({
+    const [eventForm, setEventForm] = useState({
         name: "", descripcion: "", location: "", price: 0, capacity: 0, date: ""
     })
-
+    const [editingId, setEditingId] = useState(null)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -56,35 +56,82 @@ function DashboardPage() {
 
     }, [navigate])
 
-    const handleCreateEvent = async (e) => {
+    const handleSaveEvent = async (e) => {
         e.preventDefault()
 
-        if (!newEvent.name || !newEvent.price) return alert("Completa los datos")
+        if (!eventForm.name || !eventForm.price) return alert("Completa los datos")
 
-        let formattedDate = newEvent.date;
+        let formattedDate = eventForm.date;
 
         if (formattedDate && formattedDate.length === 16) {
             formattedDate = formattedDate + ":00";
         }
 
-        const eventToSend = { ...newEvent, date: formattedDate };
+        const eventToSend = { ...eventForm, date: formattedDate };
 
         try {
-            const response = await fetch("http://localhost/api/events", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(eventToSend)
-            })
+            let response;
+            if (editingId) {
+                response = await fetch(`http://localhost/api/events/${editingId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(eventToSend)
+                })
+            } else {
+                response = await fetch("http://localhost/api/events", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(eventToSend)
+                })
+            }
 
             if (response.ok) {
-                alert("✅ Evento creado exitosamente")
+                alert(editingId ? "Evento actualizado exitosamente" : "Evento creado exitosamente")
                 window.location.reload()
             } else {
-                alert("❌ Error al crear evento. Revisa la consola.")
+                alert("Error al crear evento. Revisa la consola.")
             }
         } catch (error) {
             console.error("Error al crear evento:", error)
             alert("Error de conexión con Java")
+        }
+    }
+
+    const handleEditClick = (event) => {
+        setEditingId(event.id)
+        setEventForm({
+            name: event.name,
+            description: event.description,
+            location: event.location,
+            price: event.price,
+            capacity: event.capacity,
+            date: event.date
+        })
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    const handleCancelEdit = () => {
+        setEditingId(null)
+        setEventFrom({
+            name: "", description: "", location: "", price: 0, capacity: 0, date: ""
+        })
+    }
+
+    const handleDeleteEvent = async (eventId) => {
+        if (!window.confirm("¿estas seguro de eliminar este evento?"))
+            return;
+        try {
+            const response = await fetch(`http://localhost/api/events/${eventId}`,
+                { method: "DELETE" }
+            )
+            if (response.ok) {
+                alert("Evento eliminado exitosamente")
+                setEvents(events.filter(ev => ev.id !== eventId))
+            } else {
+                alert("Error al eliminar evento")
+            }
+        } catch (error) {
+            console.error("Error")
         }
     }
 
@@ -211,56 +258,22 @@ function DashboardPage() {
             </div>
 
             {user.role === 'ADMIN' && (
-                <div style={{ backgroundColor: '#fff3cd', padding: '20px', borderRadius: '10px', marginBottom: '30px', border: '1px solid #ffeeba' }}>
-                    <h3>🛠 Panel de Administrador: Crear Nuevo Evento</h3>
-                    <form onSubmit={handleCreateEvent} style={{ display: 'grid', gap: '10px', gridTemplateColumns: '1fr 1fr' }}>
-                        <input
-                            placeholder="Nombre del Evento"
-                            value={newEvent.name}
-                            onChange={e => setNewEvent({ ...newEvent, name: e.target.value })}
-                            required
-                            style={{ padding: '8px' }}
-                        />
-                        <input
-                            placeholder="Ubicación"
-                            value={newEvent.location}
-                            onChange={e => setNewEvent({ ...newEvent, location: e.target.value })}
-                            required
-                            style={{ padding: '8px' }}
-                        />
-                        <input
-                            placeholder="Descripción"
-                            value={newEvent.description}
-                            onChange={e => setNewEvent({ ...newEvent, descripcion: e.target.value })}
-                            required
-                            style={{ gridColumn: 'span 2', padding: '8px' }}
-                        />
-                        <input
-                            type="number"
-                            placeholder="Precio"
-                            value={newEvent.price}
-                            onChange={e => setNewEvent({ ...newEvent, price: e.target.value ? parseFloat(e.target.value) : 0 })}
-                            required
-                            style={{ padding: '8px' }}
-                        />
-                        <input
-                            type="number"
-                            placeholder="Capacidad"
-                            value={newEvent.capacity}
-                            onChange={e => setNewEvent({ ...newEvent, capacity: e.target.value ? parseInt(e.target.value) : 0 })}
-                            required
-                            style={{ padding: '8px' }}
-                        />
-                        <input
-                            type="datetime-local"
-                            value={newEvent.date}
-                            onChange={e => setNewEvent({ ...newEvent, date: e.target.value })}
-                            required
-                            style={{ padding: '8px' }}
-                        />
+                <div style={{ backgroundColor: editingId ? '#d1ecf1' : '#fff3cd', padding: '20px', borderRadius: '10px', marginBottom: '30px', border: editingId ? '1px solid #bee5eb' : '1px solid #ffeeba' }}>
 
-                        <button type="submit" style={{ gridColumn: 'span 2', backgroundColor: '#ffc107', border: 'none', padding: '10px', cursor: 'pointer', fontWeight: 'bold', borderRadius: '4px' }}>
-                            Publicar Evento
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h3>{editingId ? '✏️ Editando Evento' : '🛠 Crear Nuevo Evento'}</h3>
+                        {editingId && <button onClick={handleCancelEdit} style={{ cursor: 'pointer', padding: '5px 10px' }}>Cancelar Edición</button>}
+                    </div>
+
+                    <form onSubmit={handleSaveEvent} style={{ display: 'grid', gap: '10px', gridTemplateColumns: '1fr 1fr' }}>
+                        <input placeholder="Nombre" value={eventForm.name} onChange={e => setEventForm({ ...eventForm, name: e.target.value })} required style={{ padding: '8px' }} />
+                        <input placeholder="Ubicación" value={eventForm.location} onChange={e => setEventForm({ ...eventForm, location: e.target.value })} required style={{ padding: '8px' }} />
+                        <input placeholder="Descripción" value={eventForm.description} onChange={e => setEventForm({ ...eventForm, description: e.target.value })} required style={{ gridColumn: 'span 2', padding: '8px' }} />
+                        <input type="number" placeholder="Precio" value={eventForm.price} onChange={e => setEventForm({ ...eventForm, price: parseFloat(e.target.value) })} required style={{ padding: '8px' }} />
+                        <input type="datetime-local" value={eventForm.date} onChange={e => setEventForm({ ...eventForm, date: e.target.value })} required style={{ padding: '8px' }} />
+
+                        <button type="submit" style={{ gridColumn: 'span 2', backgroundColor: editingId ? '#17a2b8' : '#ffc107', color: editingId ? 'white' : 'black', border: 'none', padding: '10px', cursor: 'pointer', fontWeight: 'bold', borderRadius: '4px' }}>
+                            {editingId ? 'Guardar Cambios' : 'Publicar Evento'}
                         </button>
                     </form>
                 </div>
@@ -268,61 +281,41 @@ function DashboardPage() {
 
             <h2 style={{ borderBottom: '2px solid #eee', paddingBottom: '10px' }}>📅 Todos los Eventos</h2>
 
-            {loading ? (
-                <p style={{ textAlign: 'center' }}>🔄 Cargando eventos desde Java...</p>
-            ) : (
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                    gap: '20px',
-                    marginTop: '20px'
-                }}>
-                    {events.length > 0 ? events.map(event => (
-                        <div key={event.id} style={{
-                            border: '1px solid #e0e0e0',
-                            borderRadius: '12px',
-                            padding: '20px',
-                            boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
-                            backgroundColor: 'white',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between'
-                        }}>
+
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                gap: '20px',
+                marginTop: '20px'
+            }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', marginTop: '20px' }}>
+                    {events.map(event => (
+                        <div key={event.id} style={{ border: '1px solid #e0e0e0', borderRadius: '12px', padding: '20px', backgroundColor: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                             <div>
                                 <h2 style={{ margin: '0 0 10px 0', color: '#2c3e50', fontSize: '1.2em' }}>{event.name}</h2>
                                 <p style={{ color: '#7f8c8d', fontSize: '0.9em' }}>{event.description}</p>
-                                <hr style={{ border: '0', borderTop: '1px solid #eee' }} />
                                 <p style={{ fontSize: '0.9em' }}><strong>📍</strong> {event.location}</p>
+                                <p style={{ fontSize: '0.9em' }}><strong>🗓</strong> {event.date.replace("T", " ")}</p>
                             </div>
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px' }}>
-                                <span style={{ color: '#27ae60', fontSize: '1.4em', fontWeight: 'bold' }}>
-                                    ${event.price}
-                                </span>
-                                <button
-                                    onClick={() => handleBuyTicket(event.id, event.name)}
-                                    style={{
-                                        backgroundColor: '#3498db',
-                                        color: 'white',
-                                        border: 'none',
-                                        padding: '10px 20px',
-                                        borderRadius: '8px',
-                                        cursor: 'pointer',
-                                        fontWeight: 'bold'
-                                    }}
+                                <span style={{ color: '#27ae60', fontSize: '1.4em', fontWeight: 'bold' }}>${event.price}</span>
 
-                                >
-                                    Comprar
-                                </button>
+
+                                {user.role === 'ADMIN' ? (
+                                    <div style={{ display: 'flex', gap: '5px' }}>
+                                        <button onClick={() => handleEditClick(event)} style={{ backgroundColor: '#17a2b8', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer' }}>✏️</button>
+                                        <button onClick={() => handleDeleteEvent(event.id)} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer' }}>🗑</button>
+                                    </div>
+                                ) : (
+                                    <button style={{ backgroundColor: '#3498db', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}>Comprar</button>
+                                )}
                             </div>
                         </div>
-                    )) : (
-                        <p>No hay eventos disponibles.</p>
-                    )}
+                    ))}
                 </div>
-            )}
+            </div>
         </div>
     )
 }
-
 export default DashboardPage
