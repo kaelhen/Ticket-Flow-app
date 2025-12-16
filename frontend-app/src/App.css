@@ -1,4 +1,3 @@
-/* --- Estilos Generales y Layout --- */
 .app-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -36,7 +35,6 @@ section {
   margin: 40px 0;
 }
 
-/* --- Widgets de Servicios (Ya los tenías) --- */
 .services-panel {
   display: flex;
   gap: 20px;
@@ -65,7 +63,6 @@ section {
   background-color: #e0f7fa;
 }
 
-/* --- Sección 1: Grid de Tickets (Ya lo tenías) --- */
 .events-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -119,7 +116,6 @@ section {
   background-color: #c9302c;
 }
 
-/* === NUEVO: Estilos para Próximos Eventos === */
 .upcoming-list {
   list-style: none;
   padding: 0;
@@ -149,7 +145,6 @@ section {
   background-color: #46b8da;
 }
 
-/* === NUEVO: Estilos para Galería de Fotos === */
 .photo-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));

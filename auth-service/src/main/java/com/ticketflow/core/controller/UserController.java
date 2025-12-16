@@ -28,4 +28,11 @@ public class UserController {
     public User createUser(@RequestBody User user) {
         return userRepository.save(user);
     }
+
+    @PostMapping("/register")
+    public User registerUser(@RequestBody User user) {
+        user.setRole("USER");
+        return userRepository.save(user);
+    }
+
 }

@@ -13,6 +13,7 @@ public class Event {
     private String name;
     private String descripcion;
     private String location;
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime date;
     private double price;
     private int capacity;

@@ -1,32 +1,32 @@
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom" // Importamos para redirigir
+import { useNavigate } from "react-router-dom"
 import '../App.css'
 
 function DashboardPage() {
-    const [user, setUser] = useState(null) // Estado para el usuario logueado
+    const [user, setUser] = useState(null)
     const [events, setEvents] = useState([])
     const [recommendationMsg, setRecommendationMsg] = useState("")
-    const [recommendations, setRecommendations] = useState([]) // Para guardar la lista de eventos sugeridos
+    const [recommendations, setRecommendations] = useState([])
     const [queueMsg, setQueueMsg] = useState("")
     const [loading, setLoading] = useState(true)
+    const [newEvent, setNewEvent] = useState({
+        name: "", descripcion: "", location: "", price: 0, capacity: 0, date: ""
+    })
 
     const navigate = useNavigate()
 
     useEffect(() => {
-        // 1. VERIFICACIÓN DE SEGURIDAD (Gatekeeper)
         const storedUser = localStorage.getItem("user")
 
         if (!storedUser) {
             console.log("No hay usuario, redirigiendo al login...")
-            navigate("/") // Si no hay usuario, patada al Login
+            navigate("/")
             return
         }
 
         const userData = JSON.parse(storedUser)
         setUser(userData)
         console.log("Usuario cargado:", userData)
-
-        // 2. CARGAR EVENTOS (JAVA)
         fetch("http://localhost/api/events")
             .then(response => response.json())
             .then(data => {
@@ -38,13 +38,10 @@ function DashboardPage() {
                 setLoading(false)
             })
 
-        // 3. CARGAR RECOMENDACIONES PERSONALIZADAS (PYTHON)
-        // Usamos el ID real del usuario logueado
         fetch(`http://localhost/recommend/${userData.userId}`)
             .then(response => response.json())
             .then(data => {
                 console.log("Python IA dice:", data)
-                // Python nos devuelve { user_id, recommendations: [] }
                 if (data.recommendations) {
                     setRecommendations(data.recommendations)
                     setRecommendationMsg("¡Hemos encontrado eventos basados en tus gustos!")
@@ -59,23 +56,52 @@ function DashboardPage() {
 
     }, [navigate])
 
+    const handleCreateEvent = async (e) => {
+        e.preventDefault()
+
+        if (!newEvent.name || !newEvent.price) return alert("Completa los datos")
+
+        let formattedDate = newEvent.date;
+
+        if (formattedDate && formattedDate.length === 16) {
+            formattedDate = formattedDate + ":00";
+        }
+
+        const eventToSend = { ...newEvent, date: formattedDate };
+
+        try {
+            const response = await fetch("http://localhost/api/events", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(eventToSend)
+            })
+
+            if (response.ok) {
+                alert("✅ Evento creado exitosamente")
+                window.location.reload()
+            } else {
+                alert("❌ Error al crear evento. Revisa la consola.")
+            }
+        } catch (error) {
+            console.error("Error al crear evento:", error)
+            alert("Error de conexión con Java")
+        }
+    }
+
     const handleJoinQueue = () => {
         if (!user) return
 
         setQueueMsg("Conectando con Go...")
 
-        // 4. UNIRSE A LA FILA (GO)
-        // Ahora enviamos el nombre real del usuario
         fetch("http://localhost/queue/join", {
             method: "POST",
-            body: JSON.stringify({ user: user.username }) // <--- AQUÍ ESTÁ LA CLAVE
+            body: JSON.stringify({ user: user.username })
         })
             .then(response => {
                 if (response.ok) return response.json()
                 throw new Error("Error en el servicio de Go")
             })
             .then(data => {
-                // data = { user, position, message }
                 setQueueMsg(`✅ Turno asignado a ${data.user}. Tu posición es: #${data.position}`)
             })
             .catch(error => {
@@ -88,7 +114,7 @@ function DashboardPage() {
         if (!user) return
 
         const purchaseData = {
-            userId: user.userId, // <--- USAMOS EL ID REAL DEL USUARIO
+            userId: user.userId,
             eventId: eventId
         }
 
@@ -117,12 +143,11 @@ function DashboardPage() {
         navigate("/")
     }
 
-    if (!user) return null // Evita parpadeos mientras redirige
+    if (!user) return null
 
     return (
         <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '1200px', margin: '0 auto' }}>
 
-            {/* HEADER CON SALUDO Y LOGOUT */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <div>
                     <h1 style={{ margin: 0, color: '#333' }}>🎟️ TicketFlow</h1>
@@ -136,7 +161,6 @@ function DashboardPage() {
                 </button>
             </div>
 
-            {/* SECCIÓN PYTHON (RECOMENDACIONES) */}
             <div style={{
                 backgroundColor: '#e3f2fd',
                 border: '1px solid #2196f3',
@@ -160,7 +184,6 @@ function DashboardPage() {
                 )}
             </div>
 
-            {/* SECCIÓN GO (FILA VIRTUAL) */}
             <div style={{ textAlign: 'center', marginBottom: '40px', padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '10px' }}>
                 <h3 style={{ color: '#8e44ad' }}>🚀 Fila de Alta Concurrencia (Go)</h3>
                 <button
@@ -180,7 +203,6 @@ function DashboardPage() {
                     Solicitar Turno
                 </button>
 
-                {/* Mensaje de respuesta de Go */}
                 {queueMsg && (
                     <div style={{ marginTop: '15px', padding: '10px', backgroundColor: '#fff', display: 'inline-block', borderRadius: '8px', border: '1px solid #ddd' }}>
                         <span style={{ fontSize: '1.2em' }}>{queueMsg}</span>
@@ -188,7 +210,62 @@ function DashboardPage() {
                 )}
             </div>
 
-            {/* LISTA PRINCIPAL DE EVENTOS (JAVA) */}
+            {user.role === 'ADMIN' && (
+                <div style={{ backgroundColor: '#fff3cd', padding: '20px', borderRadius: '10px', marginBottom: '30px', border: '1px solid #ffeeba' }}>
+                    <h3>🛠 Panel de Administrador: Crear Nuevo Evento</h3>
+                    <form onSubmit={handleCreateEvent} style={{ display: 'grid', gap: '10px', gridTemplateColumns: '1fr 1fr' }}>
+                        <input
+                            placeholder="Nombre del Evento"
+                            value={newEvent.name}
+                            onChange={e => setNewEvent({ ...newEvent, name: e.target.value })}
+                            required
+                            style={{ padding: '8px' }}
+                        />
+                        <input
+                            placeholder="Ubicación"
+                            value={newEvent.location}
+                            onChange={e => setNewEvent({ ...newEvent, location: e.target.value })}
+                            required
+                            style={{ padding: '8px' }}
+                        />
+                        <input
+                            placeholder="Descripción"
+                            value={newEvent.description}
+                            onChange={e => setNewEvent({ ...newEvent, descripcion: e.target.value })}
+                            required
+                            style={{ gridColumn: 'span 2', padding: '8px' }}
+                        />
+                        <input
+                            type="number"
+                            placeholder="Precio"
+                            value={newEvent.price}
+                            onChange={e => setNewEvent({ ...newEvent, price: e.target.value ? parseFloat(e.target.value) : 0 })}
+                            required
+                            style={{ padding: '8px' }}
+                        />
+                        <input
+                            type="number"
+                            placeholder="Capacidad"
+                            value={newEvent.capacity}
+                            onChange={e => setNewEvent({ ...newEvent, capacity: e.target.value ? parseInt(e.target.value) : 0 })}
+                            required
+                            style={{ padding: '8px' }}
+                        />
+                        <input
+                            type="datetime-local"
+                            value={newEvent.date}
+                            onChange={e => setNewEvent({ ...newEvent, date: e.target.value })}
+                            required
+                            style={{ padding: '8px' }}
+                        />
+
+                        <button type="submit" style={{ gridColumn: 'span 2', backgroundColor: '#ffc107', border: 'none', padding: '10px', cursor: 'pointer', fontWeight: 'bold', borderRadius: '4px' }}>
+                            Publicar Evento
+                        </button>
+                    </form>
+                </div>
+            )}
+
             <h2 style={{ borderBottom: '2px solid #eee', paddingBottom: '10px' }}>📅 Todos los Eventos</h2>
 
             {loading ? (
@@ -233,6 +310,7 @@ function DashboardPage() {
                                         cursor: 'pointer',
                                         fontWeight: 'bold'
                                     }}
+
                                 >
                                     Comprar
                                 </button>
