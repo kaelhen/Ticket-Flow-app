@@ -288,32 +288,36 @@ function DashboardPage() {
                 gap: '20px',
                 marginTop: '20px'
             }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', marginTop: '20px' }}>
-                    {events.map(event => (
-                        <div key={event.id} style={{ border: '1px solid #e0e0e0', borderRadius: '12px', padding: '20px', backgroundColor: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                            <div>
-                                <h2 style={{ margin: '0 0 10px 0', color: '#2c3e50', fontSize: '1.2em' }}>{event.name}</h2>
-                                <p style={{ color: '#7f8c8d', fontSize: '0.9em' }}>{event.description}</p>
-                                <p style={{ fontSize: '0.9em' }}><strong>📍</strong> {event.location}</p>
-                                <p style={{ fontSize: '0.9em' }}><strong>🗓</strong> {event.date.replace("T", " ")}</p>
-                            </div>
 
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px' }}>
-                                <span style={{ color: '#27ae60', fontSize: '1.4em', fontWeight: 'bold' }}>${event.price}</span>
-
-
-                                {user.role === 'ADMIN' ? (
-                                    <div style={{ display: 'flex', gap: '5px' }}>
-                                        <button onClick={() => handleEditClick(event)} style={{ backgroundColor: '#17a2b8', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer' }}>✏️</button>
-                                        <button onClick={() => handleDeleteEvent(event.id)} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer' }}>🗑</button>
-                                    </div>
-                                ) : (
-                                    <button style={{ backgroundColor: '#3498db', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}>Comprar</button>
-                                )}
-                            </div>
+                {events.map(event => (
+                    <div key={event.id} style={{ border: '1px solid #e0e0e0', borderRadius: '12px', padding: '20px', backgroundColor: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                        <div>
+                            <h2 style={{ margin: '0 0 10px 0', color: '#2c3e50', fontSize: '1.2em' }}>{event.name}</h2>
+                            <p style={{ color: '#7f8c8d', fontSize: '0.9em' }}>{event.description}</p>
+                            <p style={{ fontSize: '0.9em' }}><strong>📍</strong> {event.location}</p>
+                            <p style={{ fontSize: '0.9em' }}><strong>🗓</strong> {event.date.replace("T", " ")}</p>
                         </div>
-                    ))}
-                </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px' }}>
+                            <span style={{ color: '#27ae60', fontSize: '1.4em', fontWeight: 'bold' }}>${event.price}</span>
+
+
+                            {user.role === 'ADMIN' ? (
+                                <div style={{ display: 'flex', gap: '5px' }}>
+                                    <button onClick={() => handleEditClick(event)} style={{ backgroundColor: '#17a2b8', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer' }}>✏️</button>
+                                    <button onClick={() => handleDeleteEvent(event.id)} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer' }}>🗑</button>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => handleBuyTicket(event.id, event.name)}
+                                    style={{ backgroundColor: '#3498db', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}
+                                >
+                                    Comprar
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     )

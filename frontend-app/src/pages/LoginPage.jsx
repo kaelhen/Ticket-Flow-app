@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 
 function LoginPage() {
     const [email, setEmail] = useState("")
@@ -67,6 +67,26 @@ function LoginPage() {
                         Entrar a TicketFlow
                     </button>
                 </form>
+                <hr style={{ margin: '25px 0', border: '0', borderTop: '1px solid #eee' }} />
+
+                <div style={{ textAlign: 'center' }}>
+                    <p style={{ fontSize: '0.9em', color: '#666', marginBottom: '10px' }}>¿No tienes cuenta?</p>
+                    <Link to="/register">
+                        <button style={{
+                            width: '100%',
+                            padding: '12px',
+                            backgroundColor: '#2ecc71',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '5px',
+                            cursor: 'pointer',
+                            fontSize: '16px',
+                            fontWeight: 'bold'
+                        }}>
+                            Crear Cuenta Nueva
+                        </button>
+                    </Link>
+                </div>
             </div>
         </div>
     )

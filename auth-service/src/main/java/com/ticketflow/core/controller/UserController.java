@@ -13,7 +13,7 @@ import com.ticketflow.core.model.User;
 import com.ticketflow.core.repository.UserRepository;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 
 public class UserController {
     @Autowired

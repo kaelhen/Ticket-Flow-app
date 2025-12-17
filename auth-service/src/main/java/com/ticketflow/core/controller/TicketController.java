@@ -1,5 +1,6 @@
 package com.ticketflow.core.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,14 +38,21 @@ public class TicketController {
 
     @PostMapping
     public Ticket buyTicket(@RequestBody TicketRequest request) {
-        User user = userRepository.findById(request.userId)
+        Long userId = request.userId;
+        Long eventId = request.eventId;
+
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        Event event = eventRepository.findById(request.eventId)
+        Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
 
-        Ticket newTicket = new Ticket(user, event);
-        return ticketRepository.save(newTicket);
+        Ticket ticket = new Ticket();
+        ticket.setUser(user);
+        ticket.setEvent(event);
+        ticket.setPurchaseDate(LocalDateTime.now());
+        ticket.setStatus("Confirmado");
+        return ticketRepository.save(ticket);
     }
 
     public static class TicketRequest {

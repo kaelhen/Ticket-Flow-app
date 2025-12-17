@@ -13,10 +13,10 @@ function RegisterPage() {
         setFormData({ ...formData, [e.target.name]: e.target.value })
     }
 
-    const handleRegister = async () => {
+    const handleRegister = async (e) => {
         e.preventDefault()
         try {
-            const response = await fetch("http://localhost:8080/api/users/register", {
+            const response = await fetch("http://localhost/api/users/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
