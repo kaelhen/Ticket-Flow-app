@@ -14,6 +14,7 @@ function DashboardPage() {
     })
     const [editingId, setEditingId] = useState(null)
     const navigate = useNavigate()
+    const [queueToken, setQueueToken] = useState(null)
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user")
@@ -135,26 +136,29 @@ function DashboardPage() {
         }
     }
 
-    const handleJoinQueue = () => {
-        if (!user) return
+    const handleJoinQueue = async () => {
+        setQueueMsg("Procesando solicitud...")
 
-        setQueueMsg("Conectando con Go...")
+        try {
+            const response = await fetch("http://localhost/queue/join", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user: user ? user.username : "invitado" })
+            })
 
-        fetch("http://localhost/queue/join", {
-            method: "POST",
-            body: JSON.stringify({ user: user.username })
-        })
-            .then(response => {
-                if (response.ok) return response.json()
-                throw new Error("Error en el servicio de Go")
-            })
-            .then(data => {
-                setQueueMsg(`✅ Turno asignado a ${data.user}. Tu posición es: #${data.position}`)
-            })
-            .catch(error => {
-                console.error(error)
-                setQueueMsg("Error: El servicio de colas no responde")
-            })
+            if (response.ok) {
+                const data = await response.json()
+                // data = { turno: 123, token: "VAL...", mensaje: "..." }
+                setQueueMsg(`Turno: ${data.turno} - ${data.mensaje}`)
+                setQueueToken(data.token)
+                alert(`Ya tienes tu turno. Posición: ${data.turno}`)
+            } else {
+                setQueueMsg("Error al asignar turno")
+            }
+        } catch (error) {
+            console.error(error)
+            setQueueMsg("Error al conectar con Go")
+        }
     }
 
     const handleBuyTicket = (eventId, eventName) => {
@@ -310,9 +314,17 @@ function DashboardPage() {
                             ) : (
                                 <button
                                     onClick={() => handleBuyTicket(event.id, event.name)}
-                                    style={{ backgroundColor: '#3498db', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}
+                                    disabled={!queueToken} // <--- Bloqueado si no hay token
+                                    style={{
+                                        backgroundColor: queueToken ? '#3498db' : '#bdc3c7', // Gris o Azul
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '10px 20px',
+                                        borderRadius: '8px',
+                                        cursor: queueToken ? 'pointer' : 'not-allowed'
+                                    }}
                                 >
-                                    Comprar
+                                    {queueToken ? "Comprar" : "Requiere Turno"}
                                 </button>
                             )}
                         </div>

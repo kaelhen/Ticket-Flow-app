@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
 
@@ -8,9 +9,9 @@ import (
 )
 
 type TicketTurn struct {
-	User     string `json:"user"`
-	Position int    `json:"position"`
-	Message  string `json:"message"`
+	Turno   int    `json:"turno"`
+	Token   string `json:"token"`
+	Mensaje string `json:"mensaje"`
 }
 
 var (
@@ -44,10 +45,11 @@ func main() {
 		currentPosition++
 		myTurn := currentPosition
 		mu.Unlock()
+		tokenGenerado := fmt.Sprintf("TOKEN-TICKETFLOW-%d", myTurn)
 		c.JSON(http.StatusOK, TicketTurn{
-			User:     requestBody.User,
-			Position: myTurn,
-			Message:  "Estas en la fila, espera tu turno",
+			Turno:   myTurn,
+			Token:   tokenGenerado,
+			Mensaje: "Estas en la fila, espera tu turno",
 		})
 	})
 
