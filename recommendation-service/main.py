@@ -13,7 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_HOST = os.getenv("DB_HOST", "postgres-db")
 DB_NAME = os.getenv("DB_NAME", "ticketflow_db")
 DB_USER = os.getenv("DB_USER", "root")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "secret")
@@ -38,13 +38,11 @@ def recommend_events(user_id: int):
                     "name": row.name,
                     "description": row.descripcion,
                     "price": row.price,
-                    "reason": "Basado en tus gustos recientes"
+                    "reason": f"porque te podria gustar: {row.descripcion}"
                 })
 
-            return {
-                "user_id": user_id,
-                "recommendations": recommendations
-            }
+            return recommendations
+
     except Exception as e:
         print(f"Error DB: {e}")
         return {"error": str(e)}

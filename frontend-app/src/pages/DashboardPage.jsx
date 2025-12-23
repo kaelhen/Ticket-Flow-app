@@ -43,11 +43,13 @@ function DashboardPage() {
             .then(response => response.json())
             .then(data => {
                 console.log("Python IA dice:", data)
-                if (data.recommendations) {
-                    setRecommendations(data.recommendations)
+                if (Array.isArray(data)) {
+                    setRecommendations(data)
                     setRecommendationMsg("¡Hemos encontrado eventos basados en tus gustos!")
+                } else if (data.error) {
+                    setRecommendationMsg(data.error)
                 } else {
-                    setRecommendationMsg(data.message || "Analizando perfil...")
+                    setRecommendationMsg("No hay recomendaciones.")
                 }
             })
             .catch(error => {

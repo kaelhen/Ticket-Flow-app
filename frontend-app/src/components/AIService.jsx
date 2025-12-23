@@ -9,7 +9,7 @@ const AIService = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch('http://localhost:8001/recommend/1');
+            const response = await fetch('http://localhost:8001/1');
 
             if (!response.ok) throw new Error("Error conectando con Python");
 
@@ -19,7 +19,7 @@ const AIService = () => {
                 throw new Error(data.error);
             }
 
-            setRecommendations(data.recommendations || []);
+            setRecommendations(data || []);
 
         } catch (err) {
             console.error("Error:", err);
